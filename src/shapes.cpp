@@ -2,6 +2,44 @@
 
 const float d = 0.8660254f; // sqrt(3)/2
 
+bool airfoil_sym(const uint x, const uint y, const uint z, const float3& p, const float c, const float t){
+    const float3 l = float3(x, y, z) - p;
+    const float y_l = l.y/c;
+    const float c_0 = 0.2969f*sqrt(y_l);
+    const float c_1 = -0.1260f*(y_l);
+    const float c_2 = -0.3516f*sq(y_l);
+    const float c_3 = 0.2843f*cb(y_l);
+    const float c_4 = -0.1036f*pow(y_l, 4);
+    const float x_l = 5.0f * t * (c_0 + c_1 + c_2 + c_3 + c_4);
+    return fabs(l.x) <= x_l;
+}
+
+bool airfoil_cam(const uint x, const uint y, const uint z, const float3& p, const float c, const float t, const float p_c, const float m_c){
+    const float3 l = float3(x, y, z) - p;
+
+    const float x_l = l.y/c;                // Convert from y-component to x-component
+    const float y_s = l.x/c;                // Convert from x-component to y-component
+    const float c_0 = 0.2969f*sqrt(x_l);
+    const float c_1 = -0.1260f*(x_l);
+    const float c_2 = -0.3516f*sq(x_l);
+    const float c_3 = 0.2843f*cb(x_l);
+    const float c_4 = -0.1036f*pow(x_l, 4);
+    const float y_t = 5.0f * t * (c_0 + c_1 + c_2 + c_3 + c_4);
+    float y_c;
+
+    if (x_l <= p_c) {
+        y_c = m_c/(sq(p_c)) * ((2.0f * p_c * x_l) - (sq(x_l)));
+    }
+    else {
+        y_c = m_c/(sq(1.0f-p_c)) * ((1.0f - 2.0f*p_c) + (2.0f * p_c * x_l) - (sq(x_l)));
+    }
+
+//    println("x: "+to_string(x_l)+ +", y: "+to_string(l.x)+", t_x: "+to_string(y_l)+", y_c: "+to_string(y_c));
+//    println("x: "+to_string(x_l)+ +", y: "+to_string(l.x)+", t_x: "+to_string(y_l)+", y_c: "+to_string(y_c));
+
+    return ((l.x <= c * y_c + y_t) && (l.x >= c * y_c - y_t));
+}
+
 bool sphere(const uint x, const uint y, const uint z, const float3& p, const float r) {
 	const float3 t = float3(x, y, z)-p;
 	return sq(t.x)+sq(t.y)+sq(t.z)<=sq(r);

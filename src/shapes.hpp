@@ -22,3 +22,8 @@ float cylinder_x_plic(const uint x, const uint y, const uint z, const float3& p,
 float cylinder_y_plic(const uint x, const uint y, const uint z, const float3& p, const float r, const float l); // bar with PLIC fill levels returned
 float cylinder_z_plic(const uint x, const uint y, const uint z, const float3& p, const float r, const float l); // bar with PLIC fill levels returned
 float plane_plic(const uint x, const uint y, const uint z, const float3& p, const float3& n); // plane with PLIC fill levels returned
+
+// Custom shape functions
+
+bool airfoil_sym(const uint x, const uint y, const uint z, const float3& p, const float c, const float t);
+bool airfoil_cam(const uint x, const uint y, const uint z, const float3& p, const float c, const float t, const float p_c, const float m_c);
