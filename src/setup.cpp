@@ -5,8 +5,8 @@ void main_setup() { // Airfoil Test; required extensions in defines.hpp: D2Q9, F
     // ################################################################## define simulation box size, viscosity and volume force ###################################################################
     const uint memory = 200u;
     const uint T_Steps = 15000u;
-    const uint x_length = 2048u;
-    const uint y_length = 4096u;
+    const uint x_length = 1024u;
+    const uint y_length = 2048u;
     const uint z_length = 1u;
     const float c = float(y_length)/5.0f;
     const float t = 0.10f * c;
@@ -21,7 +21,7 @@ void main_setup() { // Airfoil Test; required extensions in defines.hpp: D2Q9, F
     // ###################################################################################### define geometry ######################################################################################
     const uint Nx=lbm.get_Nx(), Ny=lbm.get_Ny(), Nz=lbm.get_Nz(); parallel_for(lbm.get_N(), [&](ulong n) { uint x=0u, y=0u, z=0u; lbm.coordinates(n, x, y, z);
         if(airfoil_cam(x, y, z, float3(Nx/2u, Ny/2u, Nz/2u), c, t, p, m)) {lbm.flags[n] = TYPE_S;}
-        else {lbm.u.x[n] = si_u;}
+        else lbm.u.y[n] = si_u;
         if(x==0u||x==Nx-1u||y==0u||y==Ny-1u) lbm.flags[n] = TYPE_E; // all non periodic
     }); // ####################################################################### run simulation, export images and data ##########################################################################
     lbm.graphics.visualization_modes = VIS_FIELD;
