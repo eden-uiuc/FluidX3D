@@ -17,8 +17,8 @@ bool airfoil_sym(const uint x, const uint y, const uint z, const float3& p, cons
 bool airfoil_cam(const uint x, const uint y, const uint z, const float3& p, const float c, const float t, const float p_c, const float m_c){
     const float3 l = float3(x, y, z) - p;
 
-    const float x_l = l.y/c;                // Convert from y-component to x-component
-    const float y_s = l.x/c;                // Convert from x-component to y-component
+    const float x_l = l.x/c;                // Convert from y-component to x-component
+    const float y_s = l.y/c;                // Convert from x-component to y-component
     const float c_0 = 0.2969f*sqrt(x_l);
     const float c_1 = -0.1260f*(x_l);
     const float c_2 = -0.3516f*sq(x_l);
@@ -37,7 +37,7 @@ bool airfoil_cam(const uint x, const uint y, const uint z, const float3& p, cons
 //    println("x: "+to_string(x_l)+ +", y: "+to_string(l.x)+", t_x: "+to_string(y_l)+", y_c: "+to_string(y_c));
 //    println("x: "+to_string(x_l)+ +", y: "+to_string(l.x)+", t_x: "+to_string(y_l)+", y_c: "+to_string(y_c));
 
-    return ((l.x <= c * y_c + y_t) && (l.x >= c * y_c - y_t));
+    return ((l.y <= c * y_c + y_t) && (l.y >= c * y_c - y_t));
 }
 
 bool sphere(const uint x, const uint y, const uint z, const float3& p, const float r) {
