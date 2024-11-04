@@ -14,11 +14,15 @@ bool airfoil_sym(const uint x, const uint y, const uint z, const float3& p, cons
     return fabs(l.x) <= x_l;
 }
 
-bool airfoil_cam(const uint x, const uint y, const uint z, const float3& p, const float c, const float t, const float p_c, const float m_c){
+bool airfoil_cam(const uint x, const uint y, const uint z, const float3& p, const float c, const float t, const float p_c, const float m_c, const float aoa){
     const float3 l = float3(x, y, z) - p;
+	const float alpha = M_PI/180.0f * aoa;
+    const float sin_a = sin(alpha);
+    const float cos_a = cos(alpha);
 
-    const float x_l = l.x/c;                // Convert from y-component to x-component
-    const float y_s = l.y/c;                // Convert from x-component to y-component
+
+    const float x_l = l.x/c * cos_a - l.y/c * sin_a;                // Convert from y-component to x-component
+    const float y_s = l.x/c * sin_a + l.y/c * cos_a;                // Convert from x-component to y-component
     const float c_0 = 0.2969f*sqrt(x_l);
     const float c_1 = -0.1260f*(x_l);
     const float c_2 = -0.3516f*sq(x_l);
@@ -28,16 +32,13 @@ bool airfoil_cam(const uint x, const uint y, const uint z, const float3& p, cons
     float y_c;
 
     if (x_l <= p_c) {
-        y_c = m_c/(sq(p_c)) * ((2.0f * p_c * x_l) - (sq(x_l)));
+        y_c = m_c/(sq(p_c)) * ((2.0f * p_c * x_l) - (sq(x_l))) * c;
     }
     else {
-        y_c = m_c/(sq(1.0f-p_c)) * ((1.0f - 2.0f*p_c) + (2.0f * p_c * x_l) - (sq(x_l)));
+        y_c = m_c/(sq(1.0f-p_c)) * ((1.0f - 2.0f*p_c) + (2.0f * p_c * x_l) - (sq(x_l))) * c;
     }
 
-//    println("x: "+to_string(x_l)+ +", y: "+to_string(l.x)+", t_x: "+to_string(y_l)+", y_c: "+to_string(y_c));
-//    println("x: "+to_string(x_l)+ +", y: "+to_string(l.x)+", t_x: "+to_string(y_l)+", y_c: "+to_string(y_c));
-
-    return ((l.y <= c * y_c + y_t) && (l.y >= c * y_c - y_t));
+    return ((y_s * c <= y_c + y_t) && (y_s * c >= y_c - y_t));
 }
 
 bool sphere(const uint x, const uint y, const uint z, const float3& p, const float r) {

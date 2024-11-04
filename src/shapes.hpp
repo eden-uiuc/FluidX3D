@@ -26,4 +26,4 @@ float plane_plic(const uint x, const uint y, const uint z, const float3& p, cons
 // Custom shape functions
 
 bool airfoil_sym(const uint x, const uint y, const uint z, const float3& p, const float c, const float t);
-bool airfoil_cam(const uint x, const uint y, const uint z, const float3& p, const float c, const float t, const float p_c, const float m_c);
+bool airfoil_cam(const uint x, const uint y, const uint z, const float3& p, const float c, const float t, const float p_c, const float m_c, const float aoa);
