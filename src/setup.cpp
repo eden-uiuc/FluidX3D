@@ -5,10 +5,10 @@ void main_setup() { // Airfoil Test; required extensions in defines.hpp: D2Q9, F
     // ################################################################## define simulation box size, viscosity and volume force ###################################################################
     const uint memory = 200u;
     const uint T_Steps = 15000u;
-    const uint x_length = 2049u;
+    const uint x_length = 2048u;
     const uint y_length = 1024u;
     const uint z_length = 1u;
-    const float c = float(x_length)/5.0f;
+    const float c = float(x_length)/20.0f;
     const float t = 0.10f * c;
     const float Re = 250.0f;
     const float si_u = 0.10f;
