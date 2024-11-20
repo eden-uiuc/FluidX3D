@@ -35,17 +35,20 @@
         else lbm.u.x[n] = 0.05f;
         if(x==0u||x==Nx-1u||y==0u||y==Ny-1u) lbm.flags[n] = TYPE_E; // all non periodic
     }); // ####################################################################### run simulation, export images and data ##########################################################################
-    lbm.graphics.visualization_modes = VIS_FIELD;
-    lbm.graphics.slice_mode = 3;
+//    lbm.graphics.visualization_modes = VIS_FIELD;
+//    lbm.graphics.slice_mode = 3;
     
-    lbm.run(0u, units.t(5.0f));
+    lbm.run(0u);
     const string path = get_exe_path()+"FP16C/"+to_string(memory)+"MB/";
     lbm.write_status(path);
     write_file(path+"Cd.dat", "# t\tCd\n");
+    write_file(path+"Cl.dat", "# t\tCl\n");
 
     float Cl_smooth_old = 0.0f;
     float Cd_smooth_old = 0.0f;
     const float smoothing = 2.0f;
+
+    bool done = false;
 
     while(lbm.get_t()<=lbm_T) { // main simulation loop
         Clock clock;
@@ -60,9 +63,12 @@
         float Cl_smooth = Cl * (smoothing / (1 + lbm.get_t())) + Cl_smooth_old * (1 - smoothing / (1 + lbm.get_t()));
         float Cd_smooth = Cd * (smoothing / (1 + lbm.get_t())) + Cd_smooth_old * (1 - smoothing / (1 + lbm.get_t()));
 
-        if (fabs(Cl_smooth - Cl_smooth_old) < 1e-3f && fabs(Cd_smooth - Cd_smooth_old) < 1e-3f){
+        if (fabs(Cl_smooth - Cl_smooth_old) < 1e-3f && fabs(Cd_smooth - Cd_smooth_old) < 1e-3f && lbm.get_t()){
             write_line(path + "Cd.dat", to_string(lbm.get_t()) + "\t" + to_string(Cd, 3u) + "\n");
             write_line(path + "Cl.dat", to_string(lbm.get_t()) + "\t" + to_string(Cl, 3u) + "\n");
+            done = true;
+        }
+        if (done){
             exit(0);
         } else {
             Cl_smooth_old = Cl_smooth;
