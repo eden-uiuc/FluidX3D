@@ -1,31 +1,32 @@
-#include "setup.hpp"
-#include "info.hpp"
 
-void main_setup() { // Airfoil Test; required extensions in defines.hpp: D2Q9, FP16C, EQUILIBRIUM_BOUNDARIES, INTERACTIVE_GRAPHICS, SUBGRID, FORCE_FIELD
+	#include "setup.hpp"
+	#include "info.hpp"
+	
+	void main_setup() { // Airfoil Test; required extensions in defines.hpp: D2Q9, FP16C, EQUILIBRIUM_BOUNDARIES, INTERACTIVE_GRAPHICS, SUBGRID, FORCE_FIELD
     // ################################################################## define simulation box size, viscosity and volume force ###################################################################
+
     // LBM Parameters
     const uint memory = 20000u;
-    const uint T_Steps = 15000u;
     const uint x_length = 2048u;
     const uint y_length = 1024u;
     const uint z_length = 1u;
+    const ulong lbm_T = units.t(5.0f);
 
     //Flow Parameters
-    const float Re = 6e6f;
-    const float si_u = 88.8f;
-    const float si_rho = 1.225f;
-
+    const float Re = 6e6f;                                    //Reynolds Number
+    const float si_u = 51.45f;                               //Velocity, Initial Input was 88.8f
+    const float si_rho = 1.225f;                            //Density of Fluid
 
     //Airfoil Parameters
-    const float c = float(x_length)/20.0f;
-    const float t = 0.06f * c;
+    const float c = float(x_length)/20.0f;               //equivalent to si_x
+    const float t = 0.12f * c;                   //thickness
+    const float p = 0.0f;                //position of maximum camber
+    const float m = 0.0f;                        //maximum camber
+    const float aoa = 7.96346f;                      //angle of attack
 
-    const float p = 0.00f;
-    const float m = 0.00f;
-    const float aoa = 5.0f;
-
-    //Setup Units
+    //Setup Units – Convert SI to LBM Units
     units.set_m_kg_s(c, 0.05f, 1.0f, 1.0f, si_u, si_rho);
+
 
     LBM lbm(x_length, y_length, z_length, units.nu_from_Re(Re, c, si_u));
     // ###################################################################################### define geometry ######################################################################################
@@ -36,17 +37,43 @@ void main_setup() { // Airfoil Test; required extensions in defines.hpp: D2Q9, F
     }); // ####################################################################### run simulation, export images and data ##########################################################################
     lbm.graphics.visualization_modes = VIS_FIELD;
     lbm.graphics.slice_mode = 3;
-    lbm.run();
+    
+    lbm.run(0u, units.t(5.0f));
     const string path = get_exe_path()+"FP16C/"+to_string(memory)+"MB/";
     lbm.write_status(path);
     write_file(path+"Cd.dat", "# t\tCd\n");
-    while(lbm.get_t()<=units.t(T_Steps)) { // main simulation loop
+
+    float Cl_smooth_old = 0.0f;
+    float Cd_smooth_old = 0.0f;
+    const float smoothing = 2.0f;
+
+    while(lbm.get_t()<=lbm_T) { // main simulation loop
         Clock clock;
         lbm.calculate_force_on_boundaries();
+        lbm.F.read_from_device();
         const float3 lbm_force = lbm.calculate_force_on_object(TYPE_S);
-        const float force = units.si_F(lbm_force.x);
-        const float Cd = units.si_F(lbm_force.x) / (0.5f * si_rho * sq(si_u)); // expect Cd to be too large by a factor 1.3-2.0x; need wall model                                                                         ");
-        write_line(path + "Cd.dat", to_string(lbm.get_t()) + "\t" + to_string(Cd, 3u) + "\n");
-    }
+        const float force_y = units.si_F(lbm_force.y);
+        const float force_x = units.si_F(lbm_force.x);
+        const float Cl = force_y / (0.5f * si_rho * sq(si_u));          // calculation of lift coefficient; Multiplication by Cross-Section Area Missing?
+        const float Cd = force_x / (0.5f * si_rho * sq(si_u));          // expect Cd to be too large by a factor 1.3-2.0x; need wall model
 
+        float Cl_smooth = Cl * (smoothing / (1 + lbm.get_t())) + Cl_smooth_old * (1 - smoothing / (1 + lbm.get_t()));
+        float Cd_smooth = Cd * (smoothing / (1 + lbm.get_t())) + Cd_smooth_old * (1 - smoothing / (1 + lbm.get_t()));
+
+        if (fabs(Cl_smooth - Cl_smooth_old) < 1e-3f && fabs(Cd_smooth - Cd_smooth_old) < 1e-3f){
+            write_line(path + "Cd.dat", to_string(lbm.get_t()) + "\t" + to_string(Cd, 3u) + "\n");
+            write_line(path + "Cl.dat", to_string(lbm.get_t()) + "\t" + to_string(Cl, 3u) + "\n");
+            exit(0);
+        } else {
+            Cl_smooth_old = Cl_smooth;
+            Cd_smooth_old = Cd_smooth;
+        }
+
+//        if(lbm.graphics.next_frame(lbm_T, 5.0f)) { // render enough frames for 25 seconds of 60fps video
+//            lbm.graphics.set_camera_centered(-90.0f, 90.0f, 60.0f, 1.750f); // set camera position
+//            lbm.graphics.write_frame(get_exe_path()+"export/camera_1/"); // export image from camera position
+//        }
+        lbm.run(1u, lbm_T); // run 1 LBM time step
+    }
 }
+
