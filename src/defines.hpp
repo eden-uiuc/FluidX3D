@@ -28,8 +28,8 @@
 //#define INTERACTIVE_GRAPHICS_ASCII // enable interactive graphics in ASCII mode the console; start/pause the simulation by pressing P
 //#define GRAPHICS // run FluidX3D in the console, but still enable graphics functionality for writing rendered frames to the hard drive
 
-#define GRAPHICS_FRAME_WIDTH 1920 // set frame width if only GRAPHICS is enabled
-#define GRAPHICS_FRAME_HEIGHT 1080 // set frame height if only GRAPHICS is enabled
+#define GRAPHICS_FRAME_WIDTH 480 // set frame width if only GRAPHICS is enabled
+#define GRAPHICS_FRAME_HEIGHT 270 // set frame height if only GRAPHICS is enabled
 #define GRAPHICS_BACKGROUND_COLOR 0x000000 // set background color; black background (default) = 0x000000, white background = 0xFFFFFF
 #define GRAPHICS_U_MAX 0.18f // maximum velocity for velocity coloring in units of LBM lattice speed of sound (c=1/sqrt(3)) (default: 0.18f)
 #define GRAPHICS_RHO_DELTA 0.01f // coloring range for density rho will be [1.0f-GRAPHICS_RHO_DELTA, 1.0f+GRAPHICS_RHO_DELTA] (default: 0.01f)
