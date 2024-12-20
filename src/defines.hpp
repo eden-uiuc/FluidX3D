@@ -10,8 +10,8 @@
 #define SRT // choose single-relaxation-time LBM collision operator; (default)
 //#define TRT // choose two-relaxation-time LBM collision operator
 
-//#define FP16S // optional for 2x speedup and 2x VRAM footprint reduction: compress LBM DDFs to range-shifted IEEE-754 FP16; number conversion is done in hardware; all arithmetic is still done in FP32
-#define FP16C // optional for 2x speedup and 2x VRAM footprint reduction: compress LBM DDFs to more accurate custom FP16C format; number conversion is emulated in software; all arithmetic is still done in FP32
+#define FP16S // optional for 2x speedup and 2x VRAM footprint reduction: compress LBM DDFs to range-shifted IEEE-754 FP16; number conversion is done in hardware; all arithmetic is still done in FP32
+//#define FP16C // optional for 2x speedup and 2x VRAM footprint reduction: compress LBM DDFs to more accurate custom FP16C format; number conversion is emulated in software; all arithmetic is still done in FP32
 
 //#define BENCHMARK // disable all extensions and setups and run benchmark setup instead
 
@@ -28,8 +28,8 @@
 //#define INTERACTIVE_GRAPHICS_ASCII // enable interactive graphics in ASCII mode the console; start/pause the simulation by pressing P
 //#define GRAPHICS // run FluidX3D in the console, but still enable graphics functionality for writing rendered frames to the hard drive
 
-#define GRAPHICS_FRAME_WIDTH 480 // set frame width if only GRAPHICS is enabled
-#define GRAPHICS_FRAME_HEIGHT 270 // set frame height if only GRAPHICS is enabled
+#define GRAPHICS_FRAME_WIDTH 1080 // set frame width if only GRAPHICS is enabled
+#define GRAPHICS_FRAME_HEIGHT 940 // set frame height if only GRAPHICS is enabled
 #define GRAPHICS_BACKGROUND_COLOR 0x000000 // set background color; black background (default) = 0x000000, white background = 0xFFFFFF
 #define GRAPHICS_U_MAX 0.18f // maximum velocity for velocity coloring in units of LBM lattice speed of sound (c=1/sqrt(3)) (default: 0.18f)
 #define GRAPHICS_RHO_DELTA 0.01f // coloring range for density rho will be [1.0f-GRAPHICS_RHO_DELTA, 1.0f+GRAPHICS_RHO_DELTA] (default: 0.01f)
